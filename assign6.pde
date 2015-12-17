@@ -1,28 +1,28 @@
 class GameState
 {
-	static final int START = 0;
-	static final int PLAYING = 1;
-	static final int END = 2;
+  static final int START = 0;
+  static final int PLAYING = 1;
+  static final int END = 2;
 }
 class Direction
 {
-	static final int LEFT = 0;
-	static final int RIGHT = 1;
-	static final int UP = 2;
-	static final int DOWN = 3;
+  static final int LEFT = 0;
+  static final int RIGHT = 1;
+  static final int UP = 2;
+  static final int DOWN = 3;
 }
 class EnemysShowingType
 {
-	static final int STRAIGHT = 0;
-	static final int SLOPE = 1;
-	static final int DIAMOND = 2;
-	static final int STRONGLINE = 3;
+  static final int STRAIGHT = 0;
+  static final int SLOPE = 1;
+  static final int DIAMOND = 2;
+  static final int STRONGLINE = 3;
 }
 class FlightType
 {
-	static final int FIGHTER = 0;
-	static final int ENEMY = 1;
-	static final int ENEMYSTRONG = 2;
+  static final int FIGHTER = 0;
+  static final int ENEMY = 1;
+  static final int ENEMYSTRONG = 2;
 }
 
 int state = GameState.START;
@@ -41,60 +41,94 @@ boolean isMovingLeft;
 boolean isMovingRight;
 
 int time;
-int wait = 4000;
+int wait = 5000;
 
+boolean [] bulletlimit = new boolean[5];
+Bullet bullet[]= new Bullet[5];
 
+int n=0;
+
+int bulletnumber=0;
 
 void setup () {
-	size(640, 480);
-	flameMgr = new FlameMgr();
-	bg = new Background();
-	treasure = new Treasure();
-	hpDisplay = new HPDisplay();
-	fighter = new Fighter(20);
+  size(640, 480);
+  flameMgr = new FlameMgr();
+  bg = new Background();
+  treasure = new Treasure();
+  hpDisplay = new HPDisplay();
+  fighter = new Fighter(20);
+
 }
 
 void draw()
 {
-	if (state == GameState.START) {
-		bg.draw();	
-	}
-	else if (state == GameState.PLAYING) {
-		bg.draw();
-		treasure.draw();
-		flameMgr.draw();
-		fighter.draw();
+  if (state == GameState.START) {
+    bg.draw(); 
+    /*
+    if (mouseX>200 & mouseX<455 & mouseY>375 & mouseY<415){
+        if(mousePressed){
+           state = GameState.PLAYING;
+     }
+    }
+    */
+  }
+  else if (state == GameState.PLAYING) {
+    bg.draw();
+    treasure.draw();
+    flameMgr.draw();
+    fighter.draw();
 
-		//enemys
-		if(millis() - time >= wait){
-			addEnemy(currentType++);
-			currentType = currentType%4;
-		}		
+    //enemys
+    if(millis() - time >= wait){
+      addEnemy(currentType++);
+      currentType = currentType%4;
+    }    
 
-		for (int i = 0; i < enemyCount; ++i) {
-			if (enemys[i]!= null) {
-				enemys[i].move();
-				enemys[i].draw();
-				if (enemys[i].isCollideWithFighter()) {
-					fighter.hpValueChange(-20);
-					flameMgr.addFlame(enemys[i].x, enemys[i].y);
-					enemys[i]=null;
-				}
-				else if (enemys[i].isOutOfBorder()) {
-					enemys[i]=null;
-				}
-			}
-		}
-		// 這地方應該加入Fighter 血量顯示UI
-		
-	}
-	else if (state == GameState.END) {
-		bg.draw();
-	}
+    for (int i = 0; i < enemyCount; ++i) {
+      if (enemys[i]!= null) {
+        enemys[i].move();
+        enemys[i].draw();
+        if (enemys[i].isCollideWithFighter()) {
+          fighter.hpValueChange(-enemys[i].damage);
+          flameMgr.addFlame(enemys[i].x, enemys[i].y);
+          enemys[i]=null;
+        }
+        else if (enemys[i].isOutOfBorder()) {
+          enemys[i]=null;
+        }
+      }
+    }
+    
+     for (int i=0; i<5; ++i) {
+      if (bullet[i]!= null) {
+        bullet[i].move();
+        bullet[i].draw();
+        if (bullet[i].x<-31) {
+          bullet[i]=null;
+        }
+        for (int j=0; j<8; j++) {
+          if (enemys[j]!=null && enemys[j].isCollideWithBullet(i)) {
+            enemys[j].life--;
+            bullet[i]=null;
+            if (enemys[j].life == 0) {
+              flameMgr.addFlame(enemys[j].x, enemys[j].y);
+              enemys[j]=null;
+            }
+          }
+        }
+      }
+    }
+    // 這地方應該加入Fighter 血量顯示UI
+      hpDisplay.updateWithFighterHP(fighter.hp);  
+  }
+  else if (state == GameState.END) {
+    bg.draw();
+    
+  }
 }
 boolean isHit(int ax, int ay, int aw, int ah, int bx, int by, int bw, int bh)
 {
-	// Collision x-axis?
+  // Collision x-axis?
     boolean collisionX = (ax + aw >= bx) && (bx + bw >= ax);
     // Collision y-axis?
     boolean collisionY = (ay + ah >= by) && (by + bh >= ay);
@@ -112,28 +146,37 @@ void keyPressed(){
 }
 void keyReleased(){
   switch(keyCode){
-	case UP : isMovingUp = false ;break ;
+  case UP : isMovingUp = false ;break ;
     case DOWN : isMovingDown = false ; break ;
     case LEFT : isMovingLeft = false ; break ;
     case RIGHT : isMovingRight = false ; break ;
     default :break ;
   }
   if (key == ' ') {
-  	if (state == GameState.PLAYING) {
-		fighter.shoot();
-	}
+    if (state == GameState.PLAYING) {
+        if(bullet[0]!=null&&bullet[1]!=null&&bullet[2]!=null&&bullet[3]!=null&&bullet[4]!=null){
+        }else{
+          fighter.shoot(n);
+          n++;
+          n=n%5;
+        }
+
   }
+  }
+
   if (key == ENTER) {
     switch(state) {
       case GameState.START:
       case GameState.END:
         state = GameState.PLAYING;
-		enemys = new Enemy[enemyCount];
-		flameMgr = new FlameMgr();
-		treasure = new Treasure();
-		fighter = new Fighter(20);
+        enemys = new Enemy[enemyCount];
+        flameMgr = new FlameMgr();
+        treasure = new Treasure();
+        fighter = new Fighter(20);
+        for(int i=0;i<5;i++){
+          bullet[i]=null;}
+          
       default : break ;
     }
   }
 }
-
