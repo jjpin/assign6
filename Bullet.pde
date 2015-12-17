@@ -2,9 +2,9 @@ class Bullet{
   int x,y;
   PImage bulletImg = loadImage("img/shoot.png");
   
-  Bullet(int fighterx, int fightery) {
-    x = fighterx;
-    y = fightery;
+  Bullet(int fighterX, int fighterY) {
+    x = fighterX;
+    y = fighterY;
       //  image(bulletImg,x,y);
   }
   void move(){
