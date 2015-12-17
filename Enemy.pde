@@ -27,19 +27,20 @@ class Enemy{
 
   boolean isCollideWithFighter()
   {
-       if(isHit(this.x,this.y,enemyImg.width,enemyImg.height,fighter.x,
-           fighter.y,fighter.fighterImg.width,fighter.fighterImg.height))
+       if(isHit(this.x, this.y, enemyImg.width, enemyImg.height, fighter.x, fighter.y, fighter.fighterImg.width, fighter.fighterImg.height))
           {
           return true;
           }        
-          return false;
-          }
+        return false;
+  }
           
   boolean isCollideWithBullet(int i)
   {
        if (bullet[i]!=null && isHit(this.x, this.y, 61, 61, bullet[i].x, bullet[i].y, 27, 31)==true) {
       return true;
-    } else  return false;
+    } else  {
+      return false;
+    }
   }
   
   boolean isOutOfBorder()
@@ -47,7 +48,7 @@ class Enemy{
     if(this.x >640){
             return true;
           }
-          return false;
+    return false;
   }
 }
 
